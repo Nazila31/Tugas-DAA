@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20 Game Solver</title>
+    <style>
+        body {
+            background-color: antiquewhite;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        h1 {
+            font-size: 5rem;
+        }
+
+        input, button {
+            font-size: 1.2rem;
+            margin: 10px;
+            padding: 5px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #333;
+            display: inline-block;
+            width: 400px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>20 Game Solver</h1>
+    <form id="gameSolverForm">
+        <label>Masukkan 4 angka (dipisahkan dengan spasi):</label>
+        <input type="text" id="numbersInput" placeholder="Contoh: 3 8 7 5"><br>
+        <label>Masukkan goal:</label>
+        <input type="number" id="goalInput" value="20" min="0" max="99"><br>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div class="result" id="result">
+        <ul id="resultList"></ul>
+    </div>
+
+    <script>
+        function solve20game(numbers, goal) {
+            const ops = ['+', '-', '*', '/'];
+            let results = [];
+
+            function calculate(soFar, remaining) {
+                if (remaining.length === 0) {
+                    try {
+                        if (eval(soFar) === goal) {
+                            results.push(soFar);
+                        }
+                    } catch (e) {}
+                    return;
+                }
+
+                for (let i = 0; i < remaining.length; i++) {
+                    let next = remaining[i];
+                    let rest = remaining.slice(0, i).concat(remaining.slice(i + 1));
+
+                    if (soFar === '') {
+                        calculate(next.toString(), rest);
+                    } else {
+                        for (let op of ops) {
+                            calculate(soFar + op + next.toString(), rest);
+                        }
+                    }
+                }
+            }
+
+            calculate('', numbers);
+            return results;
+        }
+
+        document.getElementById('gameSolverForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const numbersInput = document.getElementById('numbersInput').value;
+            const goalInput = document.getElementById('goalInput').value;
+
+            const numbers = numbersInput.split(' ').map(Number);
+            const goal = Number(goalInput);
+
+            if (numbers.length !== 4 || numbers.some(isNaN)) {
+                alert("Masukkan 4 angka valid!");
+                return;
+            }
+
+            if (isNaN(goal) || goal < 0 || goal > 99) {
+                alert("Goal harus antara 0 dan 99!");
+                return;
+            }
+
+            const results = solve20game(numbers, goal);
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';  
+
+            if (results.length === 0) {
+                resultList.innerHTML = '<li>Tidak ada solusi ditemukan</li>';
+            } else {
+                results.forEach(result => {
+                    const li = document.createElement('li');
+                    li.textContent = result;
+                    resultList.appendChild(li);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
